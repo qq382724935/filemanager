@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-24 10:49:05
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-24 22:19:27
+ * @LastEditTime: 2023-12-24 23:24:14
  * @Description:
  * @PageName:
  */
@@ -47,7 +47,7 @@ export async function addFile(data: {
 }
 
 // 修改
-export async function updateFile(data: { pid: string; fileName: string }) {
+export async function updateFile(data: { id: string; fileName: string }) {
   return request<API.Result>(`${API_PROXY}/file/update/directory/name`, {
     method: 'POST',
     data,

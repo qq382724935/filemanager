@@ -177,7 +177,7 @@ const FileManager = () => {
               });
             } else {
               res = await updateFile({
-                pid: record.id,
+                id: record.id,
                 fileName: record.fileName,
               });
             }
