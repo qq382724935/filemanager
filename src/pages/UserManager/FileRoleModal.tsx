@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-24 19:46:44
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-25 16:41:16
+ * @LastEditTime: 2023-12-25 22:12:37
  * @Description:
  * @PageName:
  */
@@ -12,7 +12,11 @@ import {
   getFileNoRoleMenu,
   getFileRoleMenu,
 } from '@/services/fileManager';
-import { UserFileRoleListItem, getUserFileRoleList } from '@/services/user';
+import {
+  UserFileRoleListItem,
+  addUserBindFileRole,
+  getUserFileRoleList,
+} from '@/services/user';
 import { Status } from '@/types';
 import { LeftOutlined } from '@ant-design/icons';
 import {
@@ -96,7 +100,7 @@ const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
     await getFilesData();
     const res = await getUserFileRoleList(userId);
     if (res.code === 0) {
-      userFileRoleList = res.data;
+      userFileRoleList = res.data.filter((item) => item);
     }
   };
 
@@ -169,7 +173,14 @@ const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
         }}
       />
 
-      <DrawerForm
+      <DrawerForm<{
+        SHOW: string;
+        UPDATE: string;
+        UPLOAD: string;
+        CREATE: string;
+        DOWNLOAD: string;
+        DELETE: string;
+      }>
         title="设置文件权限"
         open={!!bindRoleId}
         formRef={formRef}
@@ -208,7 +219,20 @@ const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
             }
           }
         }}
-        onFinish={async () => {
+        onFinish={async (values) => {
+          const buttonList = Object.fromEntries(
+            Object.entries(values).filter((item) => item[1] === Status.ACTIVE),
+          );
+          const res = await addUserBindFileRole(userId, [
+            {
+              fileId: bindRoleId,
+              buttonList: Object.values(buttonList),
+            },
+          ]);
+          if (res.code !== 200) {
+            message.error(res.msg);
+            return false;
+          }
           return true;
         }}
       >
