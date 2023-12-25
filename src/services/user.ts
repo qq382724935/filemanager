@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2021-04-03 17:09:45
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-25 22:10:47
+ * @LastEditTime: 2023-12-25 22:37:50
  * @Description:
  * @PageName:
  */
@@ -63,10 +63,7 @@ export async function getUserFileRoleList(id: string) {
 // 给文件做绑定权限
 export async function addUserBindFileRole(
   userId: string,
-  filePermissionList: {
-    fileId: string;
-    buttonList: string[];
-  }[],
+  filePermissionList: UserFileRoleListItem[],
 ) {
   return request<API.Result & { data: FileItemType[] }>(
     `${API_PROXY}/file/bind/user/file`,
