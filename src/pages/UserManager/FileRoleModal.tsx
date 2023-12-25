@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-24 19:46:44
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-25 01:03:21
+ * @LastEditTime: 2023-12-25 13:08:21
  * @Description:
  * @PageName:
  */
@@ -11,8 +11,8 @@ import {
   FileItemType,
   getFileNoRoleMenu,
   getFileRoleMenu,
-  getUserBindFileRole,
 } from '@/services/fileManager';
+import { getUserFileRoleList } from '@/services/user';
 import { Status } from '@/types';
 import { LeftOutlined } from '@ant-design/icons';
 import {
@@ -168,7 +168,9 @@ const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
           if (!vis) {
             setBindRoleId('');
           } else {
-            getUserBindFileRole({ id: userId, fileId: '' });
+            setDrawerLoading(true);
+            const res = getUserFileRoleList({ userId, fileId: bindRoleId });
+            setDrawerLoading(true);
           }
         }}
         onFinish={async () => {

@@ -125,6 +125,7 @@ const FileManagerChild = () => {
     setOpenModal(false);
     setFileList([]);
   };
+  const [confirmLoading, setConfirmLoading] = useState(false);
   return (
     <>
       <ProList<FileItemType>
@@ -198,6 +199,9 @@ const FileManagerChild = () => {
               return (
                 <span
                   onClick={async () => {
+                    if (row.extName === 'folder') {
+                      return true;
+                    }
                     setPId(row.id);
                     setBreadcrumbList([
                       ...breadcrumbList,
@@ -257,9 +261,16 @@ const FileManagerChild = () => {
       <Modal
         open={openModal}
         title="文件上传"
+        confirmLoading={confirmLoading}
         onCancel={() => uploadModalCancel()}
         onOk={async () => {
-          await uploadFile(fileList, pId);
+          setConfirmLoading(true);
+          const res = await uploadFile(fileList, pId);
+          if (res.code === 0) {
+            setOpenModal(false);
+            await getFilesData(pId);
+          }
+          setConfirmLoading(false);
         }}
       >
         <Dragger {...uploadProps}>

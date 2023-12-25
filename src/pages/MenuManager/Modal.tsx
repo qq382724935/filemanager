@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-21 10:11:42
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-25 00:45:27
+ * @LastEditTime: 2023-12-25 10:54:35
  * @Description:
  * @PageName:
  */
@@ -53,7 +53,7 @@ const MenuModal: React.FC<ModalProps> = ({
       onValuesChange={(changedValues) => {
         if (changedValues?.type) {
           if (changedValues?.type.toString() === '2') {
-            formRef.current?.setFieldsValue({ path: '/file/child' });
+            formRef.current?.setFieldsValue({ path: '/file' });
             setPathDisabled(true);
           } else {
             formRef.current?.setFieldsValue({ path: '' });
