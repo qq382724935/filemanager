@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-24 19:46:44
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-25 16:36:07
+ * @LastEditTime: 2023-12-25 16:41:16
  * @Description:
  * @PageName:
  */
@@ -159,40 +159,7 @@ const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
                   key="setRole"
                   type="primary"
                   size="small"
-                  onClick={() => {
-                    setBindRoleId(row.id);
-                    console.log('row.id', row.id);
-                    const isData = userFileRoleList.some((item) => {
-                      if (item.fileId === row.id) {
-                        console.log('item', item);
-                        const initValue = (key: string) => {
-                          return item.buttonList.indexOf(key) > -1
-                            ? Status.ACTIVE
-                            : Status.DISABLE;
-                        };
-                        formRef.current?.setFieldsValue({
-                          SHOW: Status.ACTIVE,
-                          UPDATE: initValue('UPDATE'),
-                          UPLOAD: initValue('UPLOAD'),
-                          CREATE: initValue('CREATE'),
-                          DOWNLOAD: initValue('DOWNLOAD'),
-                          DELETE: initValue('DELETE'),
-                        });
-                        return true;
-                      }
-                      return false;
-                    });
-                    if (!isData) {
-                      formRef.current?.setFieldsValue({
-                        SHOW: Status.DISABLE,
-                        UPDATE: Status.DISABLE,
-                        UPLOAD: Status.DISABLE,
-                        CREATE: Status.DISABLE,
-                        DOWNLOAD: Status.DISABLE,
-                        DELETE: Status.DISABLE,
-                      });
-                    }
-                  }}
+                  onClick={() => setBindRoleId(row.id)}
                 >
                   设置权限
                 </Button>,
@@ -209,6 +176,36 @@ const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
         onOpenChange={(vis) => {
           if (!vis) {
             setBindRoleId('');
+          } else {
+            const isData = userFileRoleList.some((item) => {
+              if (item.fileId === bindRoleId) {
+                const initValue = (key: string) => {
+                  return item.buttonList.indexOf(key) > -1
+                    ? Status.ACTIVE
+                    : Status.DISABLE;
+                };
+                formRef.current?.setFieldsValue({
+                  SHOW: Status.ACTIVE,
+                  UPDATE: initValue('UPDATE'),
+                  UPLOAD: initValue('UPLOAD'),
+                  CREATE: initValue('CREATE'),
+                  DOWNLOAD: initValue('DOWNLOAD'),
+                  DELETE: initValue('DELETE'),
+                });
+                return true;
+              }
+              return false;
+            });
+            if (!isData) {
+              formRef.current?.setFieldsValue({
+                SHOW: Status.DISABLE,
+                UPDATE: Status.DISABLE,
+                UPLOAD: Status.DISABLE,
+                CREATE: Status.DISABLE,
+                DOWNLOAD: Status.DISABLE,
+                DELETE: Status.DISABLE,
+              });
+            }
           }
         }}
         onFinish={async () => {

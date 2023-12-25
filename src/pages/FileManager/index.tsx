@@ -250,7 +250,7 @@ const FileManagerChild = () => {
                     </>
                   )}
 
-                  {isRole('UPDATE') && (
+                  {row.type === 2 && isRole('UPDATE') && (
                     <>
                       <a key="link">下载</a>
                       <Divider type="vertical" key="d2" />
