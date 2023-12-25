@@ -277,14 +277,14 @@ const FileManagerChild = () => {
                     </>
                   )}
 
-                  {row.type === 2 && isRole('UPDATE') && (
+                  {row.type === 2 && isRole('DOWNLOAD') && (
                     <>
                       <a key="link">下载</a>
                       <Divider type="vertical" key="d2" />
                     </>
                   )}
 
-                  {row.type === 2 && isRole('UPDATE') && (
+                  {row.type === 2 && isRole('DELETE') && (
                     <>
                       <Popconfirm
                         placement="topLeft"
