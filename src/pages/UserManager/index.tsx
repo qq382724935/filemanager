@@ -74,7 +74,7 @@ export default function UserManager() {
         <Popconfirm
           placement="topLeft"
           key="delete"
-          title="确认删除此用户吗?"
+          title="确认删除此用户吗,删除后此用户下的所有数据不可恢复?"
           icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
           onConfirm={async () => {
             const res = await delUser(record.id);

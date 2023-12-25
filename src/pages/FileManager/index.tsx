@@ -33,10 +33,11 @@ import { useEffect, useRef, useState } from 'react';
 const { Dragger } = Upload;
 const defaultDddFile: any = {
   id: 'add',
+  type: 1,
   fileName: '',
   uploadDate: '',
   icon: File_Base,
-  extName: 'folder',
+  extName: '.temp',
 };
 
 const FileManagerChild = () => {
@@ -174,6 +175,7 @@ const FileManagerChild = () => {
                 pid: pId,
                 extName: record.extName,
                 icon: File_Base,
+                type: record.type,
               });
             } else {
               res = await updateFile({
@@ -199,7 +201,7 @@ const FileManagerChild = () => {
               return (
                 <span
                   onClick={async () => {
-                    if (row.extName === 'folder') {
+                    if (row.type === 2) {
                       return true;
                     }
                     setPId(row.id);
@@ -226,33 +228,55 @@ const FileManagerChild = () => {
                 return false;
               };
               return [
-                <a
-                  key="edit"
-                  onClick={() => action?.startEditable(row.id)}
-                  style={{ color: isRole('UPDATE') ? '' : '#fff' }}
-                >
-                  编辑
-                </a>,
-                <Divider type="vertical" key="d1" />,
-                <a key="link" style={{ color: isRole('UPDATE') ? '' : '#fff' }}>
-                  下载
-                </a>,
-                <Divider type="vertical" key="d2" />,
-                <Popconfirm
-                  placement="topLeft"
-                  key="delete"
-                  title="确认删除此角色吗?"
-                  icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-                  onConfirm={async () => {
-                    const res = await delFile(row.id);
-                    if (res.code !== 0) {
-                      message.error(res.msg);
-                    }
-                    await getFilesData(pId);
+                <div
+                  key="action"
+                  style={{
+                    width: 130,
+                    display: 'flex',
+                    justifyContent: 'flex-start',
                   }}
                 >
-                  <a style={{ color: isRole('UPDATE') ? '' : '#fff' }}>删除</a>
-                </Popconfirm>,
+                  {isRole('UPDATE') && (
+                    <>
+                      <a
+                        key="edit"
+                        onClick={() => action?.startEditable(row.id)}
+                      >
+                        编辑
+                      </a>
+                      <Divider type="vertical" key="d1" />
+                    </>
+                  )}
+
+                  {isRole('UPDATE') && (
+                    <>
+                      <a key="link">下载</a>
+                      <Divider type="vertical" key="d2" />
+                    </>
+                  )}
+
+                  {row.type === 2 && isRole('UPDATE') && (
+                    <>
+                      <Popconfirm
+                        placement="topLeft"
+                        key="delete"
+                        title="确认删除此文件夹吗,删除后文件夹所有内容不可回复?"
+                        icon={
+                          <QuestionCircleOutlined style={{ color: 'red' }} />
+                        }
+                        onConfirm={async () => {
+                          const res = await delFile(row.id);
+                          if (res.code !== 0) {
+                            message.error(res.msg);
+                          }
+                          await getFilesData(pId);
+                        }}
+                      >
+                        <a>删除</a>
+                      </Popconfirm>
+                    </>
+                  )}
+                </div>,
               ];
             },
           },

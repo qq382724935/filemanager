@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-24 10:49:05
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-25 13:07:16
+ * @LastEditTime: 2023-12-25 14:55:32
  * @Description:
  * @PageName:
  */
@@ -39,6 +39,7 @@ export async function addFile(data: {
   extName: string;
   name: string;
   icon: string;
+  type: number;
 }) {
   return request<API.Result>(`${API_PROXY}/file/create/directory`, {
     method: 'POST',

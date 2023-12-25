@@ -83,7 +83,7 @@ const MenuManager: FC = () => {
         <Popconfirm
           placement="topLeft"
           key="delete"
-          title="确认删除此角色吗?"
+          title="确认删除此菜单吗,删除后涉及此菜单下的所有数据不可恢复?"
           icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
           onConfirm={async () => {
             const res = await delMenu(record.id);
