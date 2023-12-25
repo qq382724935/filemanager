@@ -128,7 +128,7 @@ const FileManagerChild = () => {
       const list = breadcrumbList[breadcrumbList.length - 1]?.buttonList || [];
       return list.indexOf(key) > -1;
     }
-    return false;
+    return true;
   };
   return (
     <>
