@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-24 19:46:44
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-25 22:12:37
+ * @LastEditTime: 2023-12-26 01:02:42
  * @Description:
  * @PageName:
  */
@@ -33,7 +33,6 @@ const BindShow = [
   { label: '是', value: Status.ACTIVE },
   { label: '否', value: Status.DISABLE },
 ];
-
 let userFileRoleList: UserFileRoleListItem[] = [];
 const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
   userId,
@@ -95,13 +94,15 @@ const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
       },
     },
   ];
-
-  const init = async () => {
-    await getFilesData();
+  const initUserFileRoleList = async () => {
     const res = await getUserFileRoleList(userId);
     if (res.code === 0) {
       userFileRoleList = res.data.filter((item) => item);
     }
+  };
+  const init = async () => {
+    await getFilesData();
+    await initUserFileRoleList();
   };
 
   useEffect(() => {
@@ -223,16 +224,24 @@ const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
           const buttonList = Object.fromEntries(
             Object.entries(values).filter((item) => item[1] === Status.ACTIVE),
           );
-          const res = await addUserBindFileRole(userId, [
-            {
-              fileId: bindRoleId,
-              buttonList: Object.values(buttonList),
-            },
-          ]);
-          if (res.code !== 200) {
+          let keyList = Object.keys(buttonList);
+          let fileList: UserFileRoleListItem[] = [];
+          if (keyList.indexOf('SHOW') > -1) {
+            fileList = [
+              {
+                fileId: bindRoleId,
+                buttonList: keyList.filter((item) => item !== 'SHOW'),
+              },
+            ];
+          }
+          const res = await addUserBindFileRole(userId, fileList);
+          if (res.code !== 0) {
             message.error(res.msg);
             return false;
           }
+          await initUserFileRoleList();
+          setBindRoleId('');
+          message.success('设置成功');
           return true;
         }}
       >

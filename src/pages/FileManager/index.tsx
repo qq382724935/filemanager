@@ -32,6 +32,7 @@ import { useEffect, useRef, useState } from 'react';
 
 const { Dragger } = Upload;
 
+let addKey = '';
 export type BreadcrumbListItm = ItemType & { buttonList: Array<string> | null };
 const FileManagerChild = () => {
   const [loading, setLoading] = useState(false);
@@ -43,7 +44,7 @@ const FileManagerChild = () => {
   const match = useMatch('/file/:id');
   // 页面切换回复到所有状态
   const clearState = () => {
-    actionRef.current?.cancelEditable('add');
+    actionRef.current?.cancelEditable(addKey);
     setBreadcrumbList([]);
   };
   const getFilesData = async (id: string) => {
@@ -145,9 +146,10 @@ const FileManagerChild = () => {
                   type="primary"
                   icon={<PlusCircleFilled />}
                   onClick={() => {
+                    addKey = `add-${new Date()}`;
                     actionRef.current?.addEditRecord(
                       {
-                        id: `add-${new Date()}`,
+                        id: addKey,
                         type: 1,
                         fileName: '',
                         uploadDate: '',
@@ -168,7 +170,10 @@ const FileManagerChild = () => {
                   style={{ marginLeft: 24 }}
                   key="upload"
                   icon={<UploadOutlined />}
-                  onClick={() => setOpenModal(true)}
+                  onClick={() => {
+                    actionRef.current?.cancelEditable(addKey);
+                    setOpenModal(true);
+                  }}
                 >
                   上传
                 </Button>
