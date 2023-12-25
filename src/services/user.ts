@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2021-04-03 17:09:45
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-25 13:12:07
+ * @LastEditTime: 2023-12-25 16:10:31
  * @Description:
  * @PageName:
  */
@@ -46,17 +46,16 @@ export async function delUser(id: string) {
   });
 }
 
-// 根据用户id、文件id查询文件权限
-
-export async function getUserFileRoleList(params: {
-  userId: string;
+export type UserFileRoleListItem = {
   fileId: string;
-}) {
-  return request<API.Result & { data: User[] }>(
-    `${API_PROXY}/file/find/file/permission/list/by/user/id/and/role/id`,
+  buttonList: string[];
+};
+// 根据用户id查询文件权限
+export async function getUserFileRoleList(id: string) {
+  return request<API.Result & { data: UserFileRoleListItem[] }>(
+    `${API_PROXY}/file/find/file/permission/list/by/user/${id}`,
     {
       method: 'GET',
-      params,
     },
   );
 }

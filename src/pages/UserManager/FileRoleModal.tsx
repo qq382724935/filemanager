@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-24 19:46:44
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-25 13:08:21
+ * @LastEditTime: 2023-12-25 16:36:07
  * @Description:
  * @PageName:
  */
@@ -12,7 +12,7 @@ import {
   getFileNoRoleMenu,
   getFileRoleMenu,
 } from '@/services/fileManager';
-import { getUserFileRoleList } from '@/services/user';
+import { UserFileRoleListItem, getUserFileRoleList } from '@/services/user';
 import { Status } from '@/types';
 import { LeftOutlined } from '@ant-design/icons';
 import {
@@ -26,9 +26,11 @@ import { ItemType } from 'antd/es/breadcrumb/Breadcrumb';
 import { useEffect, useRef, useState } from 'react';
 
 const BindShow = [
-  { label: '显示', value: Status.ACTIVE },
-  { label: '不显示', value: Status.DISABLE },
+  { label: '是', value: Status.ACTIVE },
+  { label: '否', value: Status.DISABLE },
 ];
+
+let userFileRoleList: UserFileRoleListItem[] = [];
 const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
   userId,
   onCancel,
@@ -90,13 +92,21 @@ const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
     },
   ];
 
+  const init = async () => {
+    await getFilesData();
+    const res = await getUserFileRoleList(userId);
+    if (res.code === 0) {
+      userFileRoleList = res.data;
+    }
+  };
+
   useEffect(() => {
-    getFilesData();
-  }, []);
+    if (userId) {
+      init();
+    }
+  }, [userId]);
 
   const formRef = useRef<ProFormInstance>();
-  const [drawerLoading, setDrawerLoading] = useState(false);
-
   return (
     <Modal
       title="设置用户文件权限"
@@ -149,7 +159,40 @@ const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
                   key="setRole"
                   type="primary"
                   size="small"
-                  onClick={() => setBindRoleId(row.id)}
+                  onClick={() => {
+                    setBindRoleId(row.id);
+                    console.log('row.id', row.id);
+                    const isData = userFileRoleList.some((item) => {
+                      if (item.fileId === row.id) {
+                        console.log('item', item);
+                        const initValue = (key: string) => {
+                          return item.buttonList.indexOf(key) > -1
+                            ? Status.ACTIVE
+                            : Status.DISABLE;
+                        };
+                        formRef.current?.setFieldsValue({
+                          SHOW: Status.ACTIVE,
+                          UPDATE: initValue('UPDATE'),
+                          UPLOAD: initValue('UPLOAD'),
+                          CREATE: initValue('CREATE'),
+                          DOWNLOAD: initValue('DOWNLOAD'),
+                          DELETE: initValue('DELETE'),
+                        });
+                        return true;
+                      }
+                      return false;
+                    });
+                    if (!isData) {
+                      formRef.current?.setFieldsValue({
+                        SHOW: Status.DISABLE,
+                        UPDATE: Status.DISABLE,
+                        UPLOAD: Status.DISABLE,
+                        CREATE: Status.DISABLE,
+                        DOWNLOAD: Status.DISABLE,
+                        DELETE: Status.DISABLE,
+                      });
+                    }
+                  }}
                 >
                   设置权限
                 </Button>,
@@ -162,21 +205,22 @@ const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
       <DrawerForm
         title="设置文件权限"
         open={!!bindRoleId}
-        loading={drawerLoading}
         formRef={formRef}
         onOpenChange={(vis) => {
           if (!vis) {
             setBindRoleId('');
-          } else {
-            setDrawerLoading(true);
-            const res = getUserFileRoleList({ userId, fileId: bindRoleId });
-            setDrawerLoading(true);
           }
         }}
         onFinish={async () => {
           return true;
         }}
       >
+        <ProFormSegmented
+          rules={[{ required: true, message: '不能为空' }]}
+          name="SHOW"
+          label="是否可查看"
+          request={async () => BindShow}
+        />
         <ProFormSegmented
           rules={[{ required: true, message: '不能为空' }]}
           name="UPDATE"
@@ -204,7 +248,7 @@ const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
         <ProFormSegmented
           rules={[{ required: true, message: '不能为空' }]}
           name="DELETE"
-          label="是否可下载"
+          label="是否可删除"
           request={async () => BindShow}
         />
       </DrawerForm>

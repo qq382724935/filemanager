@@ -31,14 +31,6 @@ import { ItemType } from 'antd/es/breadcrumb/Breadcrumb';
 import { useEffect, useRef, useState } from 'react';
 
 const { Dragger } = Upload;
-const defaultDddFile: any = {
-  id: 'add',
-  type: 1,
-  fileName: '',
-  uploadDate: '',
-  icon: File_Base,
-  extName: '.temp',
-};
 
 const FileManagerChild = () => {
   const [loading, setLoading] = useState(false);
@@ -141,9 +133,19 @@ const FileManagerChild = () => {
               type="primary"
               icon={<PlusCircleFilled />}
               onClick={() => {
-                actionRef.current?.addEditRecord(defaultDddFile, {
-                  position: 'top',
-                });
+                actionRef.current?.addEditRecord(
+                  {
+                    id: `add-${new Date()}`,
+                    type: 1,
+                    fileName: '',
+                    uploadDate: '',
+                    icon: File_Base,
+                    extName: '.temp',
+                  },
+                  {
+                    position: 'top',
+                  },
+                );
               }}
             >
               新建文件夹
@@ -169,7 +171,7 @@ const FileManagerChild = () => {
         editable={{
           onSave: async (key, record) => {
             let res: API.Result;
-            if (record.id === 'add') {
+            if (record.id.startsWith('add')) {
               res = await addFile({
                 name: record.fileName,
                 pid: pId,
