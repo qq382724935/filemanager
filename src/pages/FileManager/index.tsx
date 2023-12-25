@@ -215,7 +215,7 @@ const FileManagerChild = () => {
               );
             },
           },
-          content: { dataIndex: 'uploadDate', editable: false },
+          content: { dataIndex: 'createDate', editable: false },
           avatar: { dataIndex: 'icon', valueType: 'avatar', editable: false },
           actions: {
             render: (dom, row, index, action) => {
