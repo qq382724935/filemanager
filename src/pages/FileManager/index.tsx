@@ -178,12 +178,13 @@ const FileManagerChild = () => {
         }}
         rowKey="id"
         headerTitle={
-          <Breadcrumb
-            items={[
-              ...(breadcrumbList.length > 0 ? defaultBreadcrumbItems : []),
-              ...breadcrumbList,
-            ]}
-          />
+          breadcrumbList.length > 0 ? (
+            <Breadcrumb
+              items={[...defaultBreadcrumbItems, ...breadcrumbList]}
+            />
+          ) : (
+            <span>全部文件</span>
+          )
         }
         editable={{
           onSave: async (key, record) => {
