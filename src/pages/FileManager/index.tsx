@@ -32,9 +32,10 @@ import { useEffect, useRef, useState } from 'react';
 
 const { Dragger } = Upload;
 
+export type BreadcrumbListItm = ItemType & { buttonList: Array<string> | null };
 const FileManagerChild = () => {
   const [loading, setLoading] = useState(false);
-  const [breadcrumbList, setBreadcrumbList] = useState<ItemType[]>([]);
+  const [breadcrumbList, setBreadcrumbList] = useState<BreadcrumbListItm[]>([]);
   const actionRef = useRef<ActionType>();
 
   const [fileData, setFileData] = useState<FileItemType[]>([]);
@@ -119,6 +120,15 @@ const FileManagerChild = () => {
     setFileList([]);
   };
   const [confirmLoading, setConfirmLoading] = useState(false);
+
+  // toolBarRender区域渲染条件
+  const isShowTooalBar = (key: string) => {
+    if (breadcrumbList && breadcrumbList.length > 0) {
+      const list = breadcrumbList[breadcrumbList.length - 1]?.buttonList || [];
+      return list.indexOf(key) > -1;
+    }
+    return false;
+  };
   return (
     <>
       <ProList<FileItemType>
@@ -128,35 +138,42 @@ const FileManagerChild = () => {
         pagination={false}
         toolBarRender={() => {
           return [
-            <Button
-              key="addFile"
-              type="primary"
-              icon={<PlusCircleFilled />}
-              onClick={() => {
-                actionRef.current?.addEditRecord(
-                  {
-                    id: `add-${new Date()}`,
-                    type: 1,
-                    fileName: '',
-                    uploadDate: '',
-                    icon: File_Base,
-                    extName: '.temp',
-                  },
-                  {
-                    position: 'top',
-                  },
-                );
-              }}
-            >
-              新建文件夹
-            </Button>,
-            <Button
-              key="upload"
-              icon={<UploadOutlined />}
-              onClick={() => setOpenModal(true)}
-            >
-              上传
-            </Button>,
+            <div key="tool">
+              {isShowTooalBar('CREATE') && (
+                <Button
+                  key="addFile"
+                  type="primary"
+                  icon={<PlusCircleFilled />}
+                  onClick={() => {
+                    actionRef.current?.addEditRecord(
+                      {
+                        id: `add-${new Date()}`,
+                        type: 1,
+                        fileName: '',
+                        uploadDate: '',
+                        icon: File_Base,
+                        extName: '.temp',
+                      },
+                      {
+                        position: 'top',
+                      },
+                    );
+                  }}
+                >
+                  新建文件夹
+                </Button>
+              )}
+              {isShowTooalBar('UPLOAD') && (
+                <Button
+                  style={{ marginLeft: 24 }}
+                  key="upload"
+                  icon={<UploadOutlined />}
+                  onClick={() => setOpenModal(true)}
+                >
+                  上传
+                </Button>
+              )}
+            </div>,
           ];
         }}
         rowKey="id"
@@ -209,7 +226,11 @@ const FileManagerChild = () => {
                     setPId(row.id);
                     setBreadcrumbList([
                       ...breadcrumbList,
-                      { key: row.id, title: row.fileName },
+                      {
+                        key: row.id,
+                        title: row.fileName,
+                        buttonList: row.buttonList,
+                      },
                     ]);
                     await getFilesData(row.id);
                   }}
