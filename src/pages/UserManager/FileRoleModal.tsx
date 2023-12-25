@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-24 19:46:44
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-24 23:08:18
+ * @LastEditTime: 2023-12-25 01:03:21
  * @Description:
  * @PageName:
  */
@@ -11,21 +11,26 @@ import {
   FileItemType,
   getFileNoRoleMenu,
   getFileRoleMenu,
+  getUserBindFileRole,
 } from '@/services/fileManager';
 import { Status } from '@/types';
 import { LeftOutlined } from '@ant-design/icons';
 import {
   DrawerForm,
+  ProFormInstance,
   ProFormSegmented,
   ProList,
 } from '@ant-design/pro-components';
 import { Breadcrumb, Button, Modal, ModalProps, message } from 'antd';
 import { ItemType } from 'antd/es/breadcrumb/Breadcrumb';
-import { useEffect, useState } from 'react';
-import { ModelProps } from './UserModal';
+import { useEffect, useRef, useState } from 'react';
 
-const FileRoleManager: React.FC<ModelProps & ModalProps> = ({
-  user,
+const BindShow = [
+  { label: '显示', value: Status.ACTIVE },
+  { label: '不显示', value: Status.DISABLE },
+];
+const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
+  userId,
   onCancel,
   open,
 }) => {
@@ -33,7 +38,7 @@ const FileRoleManager: React.FC<ModelProps & ModalProps> = ({
   const [breadcrumbList, setBreadcrumbList] = useState<ItemType[]>([]);
 
   const [fileData, setFileData] = useState<FileItemType[]>([]);
-  const [roleId, setRoleId] = useState('');
+  const [bindRoleId, setBindRoleId] = useState('');
   // 页面切换回复到所有状态
   const clearState = () => {
     setBreadcrumbList([]);
@@ -89,6 +94,9 @@ const FileRoleManager: React.FC<ModelProps & ModalProps> = ({
     getFilesData();
   }, []);
 
+  const formRef = useRef<ProFormInstance>();
+  const [drawerLoading, setDrawerLoading] = useState(false);
+
   return (
     <Modal
       title="设置用户文件权限"
@@ -141,7 +149,7 @@ const FileRoleManager: React.FC<ModelProps & ModalProps> = ({
                   key="setRole"
                   type="primary"
                   size="small"
-                  onClick={() => setRoleId(row.id)}
+                  onClick={() => setBindRoleId(row.id)}
                 >
                   设置权限
                 </Button>,
@@ -153,10 +161,14 @@ const FileRoleManager: React.FC<ModelProps & ModalProps> = ({
 
       <DrawerForm
         title="设置文件权限"
-        open={!!roleId}
+        open={!!bindRoleId}
+        loading={drawerLoading}
+        formRef={formRef}
         onOpenChange={(vis) => {
           if (!vis) {
-            setRoleId('');
+            setBindRoleId('');
+          } else {
+            getUserBindFileRole({ id: userId, fileId: '' });
           }
         }}
         onFinish={async () => {
@@ -167,46 +179,31 @@ const FileRoleManager: React.FC<ModelProps & ModalProps> = ({
           rules={[{ required: true, message: '不能为空' }]}
           name="UPDATE"
           label="是否可编辑"
-          request={async () => [
-            { label: '启用', value: Status.ACTIVE },
-            { label: '禁用', value: Status.DISABLE },
-          ]}
+          request={async () => BindShow}
         />
         <ProFormSegmented
           rules={[{ required: true, message: '不能为空' }]}
           name="UPLOAD"
           label="是否可上传"
-          request={async () => [
-            { label: '启用', value: Status.ACTIVE },
-            { label: '禁用', value: Status.DISABLE },
-          ]}
+          request={async () => BindShow}
         />
         <ProFormSegmented
           rules={[{ required: true, message: '不能为空' }]}
           name="CREATE"
           label="是否可创建"
-          request={async () => [
-            { label: '启用', value: Status.ACTIVE },
-            { label: '禁用', value: Status.DISABLE },
-          ]}
+          request={async () => BindShow}
         />
         <ProFormSegmented
           rules={[{ required: true, message: '不能为空' }]}
           name="DOWNLOAD"
           label="是否可下载"
-          request={async () => [
-            { label: '启用', value: Status.ACTIVE },
-            { label: '禁用', value: Status.DISABLE },
-          ]}
+          request={async () => BindShow}
         />
         <ProFormSegmented
           rules={[{ required: true, message: '不能为空' }]}
           name="DELETE"
           label="是否可下载"
-          request={async () => [
-            { label: '启用', value: Status.ACTIVE },
-            { label: '禁用', value: Status.DISABLE },
-          ]}
+          request={async () => BindShow}
         />
       </DrawerForm>
     </Modal>

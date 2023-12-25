@@ -143,7 +143,7 @@ export default function UserManager() {
 
       <FileRoleManager
         open={roleOpen}
-        user={user}
+        userId={user?.id || ''}
         onCancel={() => {
           setRoleOpen(false);
           setUser(undefined);

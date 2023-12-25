@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2020-09-04 09:25:11
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-24 22:33:33
+ * @LastEditTime: 2023-12-25 00:44:27
  * @Description:
  */
 
@@ -25,10 +25,11 @@ export default [
   {
     path: '/file',
     hideInMenu: true,
+    // component: './FileManager',
     routes: [
       {
-        path: '/file/:id',
-        component: './FileManager',
+        path: '/file/child/:id',
+        component: './FileManager/Child',
       },
     ],
   },
@@ -51,6 +52,7 @@ export default [
     hideInMenu: true,
   },
   {
+    path: '/*',
     component: './404',
   },
 ];

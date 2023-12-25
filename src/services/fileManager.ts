@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-24 10:49:05
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-24 23:24:14
+ * @LastEditTime: 2023-12-25 01:02:00
  * @Description:
  * @PageName:
  */
@@ -97,9 +97,19 @@ export async function getFileNoRoleMenu(id: string) {
 }
 
 // 给文件做绑定权限
-export async function addUserFile(id: string) {
+export async function addUserBindFileRole(id: string) {
   return request<API.Result & { data: FileItemType[] }>(
     `${API_PROXY}/file/bind/user/file`,
     { method: 'GET' },
+  );
+}
+
+export async function getUserBindFileRole(params: {
+  id: string;
+  fileId: string;
+}) {
+  return request<API.Result & { data: FileItemType[] }>(
+    `${API_PROXY}/file/find/file/permission/list/by/user`,
+    { method: 'GET', params },
   );
 }
