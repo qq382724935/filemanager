@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-23 02:14:03
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-26 22:27:59
+ * @LastEditTime: 2023-12-26 23:06:25
  * @Description:
  * @PageName:
  */
@@ -23,6 +23,7 @@ export type InitialStateType = {
   fetchUserInfo?: () => Promise<API.CurrentUser | undefined>;
   menuData?: IRoute[];
   fetchMenuData?: () => Promise<IRoute[] | undefined>;
+  location: { hash: string; key: string; pathname: string; search: string };
 };
 
 export async function getInitialState(): Promise<InitialStateType> {
@@ -57,11 +58,13 @@ export async function getInitialState(): Promise<InitialStateType> {
       currentUser,
       fetchMenuData,
       menuData,
+      location,
       settings: defaultSettings as Partial<LayoutSettings>,
     };
   }
 
   return {
+    location,
     settings: defaultSettings as Partial<LayoutSettings>,
     fetchUserInfo,
     fetchMenuData,
