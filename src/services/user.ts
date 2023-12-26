@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2021-04-03 17:09:45
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-25 22:37:50
+ * @LastEditTime: 2023-12-26 22:37:56
  * @Description:
  * @PageName:
  */
@@ -48,6 +48,7 @@ export async function delUser(id: string) {
 
 export type UserFileRoleListItem = {
   fileId: string;
+  status: boolean;
   buttonList: string[];
 };
 // 根据用户id查询文件权限

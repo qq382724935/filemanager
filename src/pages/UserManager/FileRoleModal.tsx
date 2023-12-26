@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-24 19:46:44
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-26 14:03:12
+ * @LastEditTime: 2023-12-26 22:46:48
  * @Description:
  * @PageName:
  */
@@ -197,7 +197,7 @@ const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
                     : Status.DISABLE;
                 };
                 formRef.current?.setFieldsValue({
-                  SHOW: Status.ACTIVE,
+                  SHOW: item.status ? Status.ACTIVE : Status.DISABLE,
                   UPDATE: initValue('UPDATE'),
                   UPLOAD: initValue('UPLOAD'),
                   CREATE: initValue('CREATE'),
@@ -225,15 +225,13 @@ const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
             Object.entries(values).filter((item) => item[1] === Status.ACTIVE),
           );
           let keyList = Object.keys(buttonList);
-          let fileList: UserFileRoleListItem[] = [];
-          if (keyList.indexOf('SHOW') > -1) {
-            fileList = [
-              {
-                fileId: bindRoleId,
-                buttonList: keyList.filter((item) => item !== 'SHOW'),
-              },
-            ];
-          }
+          let fileList: UserFileRoleListItem[] = [
+            {
+              fileId: bindRoleId,
+              status: keyList.indexOf('SHOW') > -1,
+              buttonList: keyList.filter((item) => item !== 'SHOW'),
+            },
+          ];
           const res = await addUserBindFileRole(userId, fileList);
           if (res.code !== 0) {
             message.error(res.msg);

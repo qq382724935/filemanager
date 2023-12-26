@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2020-10-23 16:53:40
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-23 15:06:17
+ * @LastEditTime: 2023-12-26 22:28:59
  * @Description:
  */
 
@@ -27,6 +27,7 @@ declare namespace API {
     password: string;
     status: string;
     updateDate: number;
+    roleCodeList: string[];
   };
   export type Result = {
     msg?: string;

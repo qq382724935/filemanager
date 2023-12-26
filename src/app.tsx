@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-23 02:14:03
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-24 15:03:51
+ * @LastEditTime: 2023-12-26 22:27:59
  * @Description:
  * @PageName:
  */
@@ -13,17 +13,19 @@ import { getRoleMenus } from '@/services/menuManaget';
 import { getMyProfile } from '@/services/user';
 import { loginPath } from '@/utils';
 import type { Settings as LayoutSettings } from '@ant-design/pro-components';
-import { RunTimeLayoutConfig, history } from '@umijs/max';
+import { IRoute, RunTimeLayoutConfig, history } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
 
-export async function getInitialState(): Promise<{
+export type InitialStateType = {
   settings?: Partial<LayoutSettings>;
   currentUser?: API.CurrentUser;
   fetchUserInfo?: () => Promise<API.CurrentUser | undefined>;
-  menuData?: any;
-  fetchMenuData?: () => any;
-}> {
+  menuData?: IRoute[];
+  fetchMenuData?: () => Promise<IRoute[] | undefined>;
+};
+
+export async function getInitialState(): Promise<InitialStateType> {
   const fetchUserInfo = async () => {
     try {
       const res = await getMyProfile();

@@ -1,10 +1,19 @@
-export default (initialState: API.UserInfo) => {
-  // 在这里按照初始化数据定义项目中的权限，统一管理
-  // 参考文档 https://umijs.org/docs/max/access
-  const canSeeAdmin = !!(
-    initialState && initialState.name !== 'dontHaveAccess'
-  );
+import { InitialStateType } from './app';
+
+/*
+ * @Author: 刘利军
+ * @Date: 2023-12-23 02:14:03
+ * @LastEditors: 刘利军
+ * @LastEditTime: 2023-12-26 22:42:41
+ * @Description:
+ * @PageName:
+ */
+export default (initialState: InitialStateType) => {
+  let canAdmin = false;
+  if (initialState.currentUser?.roleCodeList) {
+    canAdmin = initialState.currentUser?.roleCodeList.indexOf('admin') > -1;
+  }
   return {
-    canSeeAdmin,
+    canAdmin,
   };
 };

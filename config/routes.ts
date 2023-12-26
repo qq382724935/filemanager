@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2020-09-04 09:25:11
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-25 08:08:45
+ * @LastEditTime: 2023-12-26 22:33:16
  * @Description:
  */
 
@@ -41,18 +41,21 @@ export default [
     name: '角色管理',
     component: './RoleManager',
     hideInMenu: true,
+    access: 'canAdmin',
   },
   {
     path: '/menu',
     name: '菜单管理',
     component: './MenuManager',
     hideInMenu: true,
+    access: 'canAdmin',
   },
   {
     path: '/user',
     name: '用户管理',
     component: './UserManager',
     hideInMenu: true,
+    access: 'canAdmin',
   },
   {
     path: '/*',
