@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-24 10:49:05
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-25 14:55:32
+ * @LastEditTime: 2023-12-26 14:08:23
  * @Description:
  * @PageName:
  */
@@ -66,11 +66,6 @@ export async function uploadFile(fileList: UploadFile[], id: string) {
 
   return request<API.Result>(`${API_PROXY}/file/upload/file`, {
     method: 'POST',
-
-    // headers: {
-    //   "Accept":
-    //   'Content-Type': 'form-data',
-    // },
     data: formData,
   });
 }
@@ -93,6 +88,14 @@ export async function getFileRoleMenu() {
 export async function getFileNoRoleMenu(id: string) {
   return request<API.Result & { data: FileItemType[] }>(
     `${API_PROXY}/file/find/file/list/no/permisson/by/directory/${id}`,
+    { method: 'GET' },
+  );
+}
+
+// 获取一级目录下的子目录，不做权限控制
+export async function getFileDownload(id: string) {
+  return request<API.Result & { data: FileItemType[] }>(
+    `${API_PROXY}/file/download/file/${id}`,
     { method: 'GET' },
   );
 }

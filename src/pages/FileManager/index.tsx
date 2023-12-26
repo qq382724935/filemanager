@@ -6,7 +6,7 @@ import {
   updateFile,
   uploadFile,
 } from '@/services/fileManager';
-import { File_Base } from '@/utils';
+import { API_PROXY, File_Base } from '@/utils';
 import {
   InboxOutlined,
   LeftOutlined,
@@ -285,7 +285,14 @@ const FileManagerChild = () => {
 
                   {row.type === 2 && isRole('DOWNLOAD') && (
                     <>
-                      <a key="link">下载</a>
+                      <a
+                        key="link"
+                        target="_blank"
+                        rel="noreferrer"
+                        href={`${API_PROXY}/file/download/file/${row.id}`}
+                      >
+                        下载
+                      </a>
                       <Divider type="vertical" key="d2" />
                     </>
                   )}
