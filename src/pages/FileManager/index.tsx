@@ -289,7 +289,7 @@ const FileManagerChild = () => {
                         key="link"
                         target="_blank"
                         rel="noreferrer"
-                        href={`${API_PROXY}/download/${row.id}`}
+                        href={`${API_PROXY}/file/download/${row.id}`}
                       >
                         下载
                       </a>
