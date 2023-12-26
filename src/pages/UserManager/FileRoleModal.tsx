@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-24 19:46:44
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-26 10:55:22
+ * @LastEditTime: 2023-12-26 14:03:12
  * @Description:
  * @PageName:
  */
@@ -245,14 +245,12 @@ const FileRoleManager: React.FC<{ userId: string } & ModalProps> = ({
           return true;
         }}
       >
-        {breadcrumbList.length > 0 && (
-          <ProFormSegmented
-            rules={[{ required: true, message: '不能为空' }]}
-            name="SHOW"
-            label="是否可查看"
-            request={async () => BindShow}
-          />
-        )}
+        <ProFormSegmented
+          rules={[{ required: true, message: '不能为空' }]}
+          name="SHOW"
+          label="是否可查看"
+          request={async () => BindShow}
+        />
         <ProFormSegmented
           rules={[{ required: true, message: '不能为空' }]}
           name="UPDATE"
