@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-23 02:21:42
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-23 11:31:48
+ * @LastEditTime: 2023-12-26 10:54:37
  * @Description:
  * @PageName:
  */
@@ -45,7 +45,6 @@ const RoleModal: React.FC<ModelProps & ModalFormProps<RoleDataType>> = ({
       }}
       submitTimeout={2000}
       onFinish={async (values) => {
-        console.log('values', values);
         let res: API.Result;
         if (user) {
           res = await updateRole({ ...user, ...values });

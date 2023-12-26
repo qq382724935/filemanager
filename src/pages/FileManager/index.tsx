@@ -33,6 +33,7 @@ import { useEffect, useRef, useState } from 'react';
 const { Dragger } = Upload;
 
 let addKey = '';
+let menuRoleList: FileItemType[] = [];
 export type BreadcrumbListItm = ItemType & { buttonList: Array<string> | null };
 const FileManagerChild = () => {
   const [loading, setLoading] = useState(false);
@@ -51,7 +52,9 @@ const FileManagerChild = () => {
     setLoading(true);
     try {
       const res = await getFiles(id);
-      setFileData(res?.data || []);
+      menuRoleList = res?.data.filter((item) => item.type === 999);
+      const fileDataList = res?.data.filter((item) => item.type !== 999);
+      setFileData(fileDataList);
     } catch (error) {}
     setLoading(false);
   };
@@ -128,7 +131,10 @@ const FileManagerChild = () => {
       const list = breadcrumbList[breadcrumbList.length - 1]?.buttonList || [];
       return list.indexOf(key) > -1;
     }
-    return true;
+    if (menuRoleList.length > 0) {
+      return (menuRoleList[0].buttonList || [])?.indexOf(key) > -1;
+    }
+    return false;
   };
   return (
     <>
