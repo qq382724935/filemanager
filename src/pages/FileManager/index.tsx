@@ -377,6 +377,7 @@ const FileManagerChild = () => {
       />
       <Modal
         width={800}
+        footer={false}
         onCancel={() => setVideoUrl('')}
         title="视频预览"
         open={!!videoUrl}
