@@ -51,7 +51,7 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
    */
   const loginOut = async () => {
     // await outLogin();
-    const { search, pathname } = window.location;
+    // const { search, pathname } = window.location;
     const urlParams = new URL(window.location.href).searchParams;
     /** 此方法会跳转到 redirect 参数所在的位置 */
     const redirect = urlParams.get('redirect');
@@ -59,9 +59,9 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
     if (window.location.pathname !== loginPath && !redirect) {
       history.replace({
         pathname: loginPath,
-        search: stringify({
-          redirect: pathname + search,
-        }),
+        // search: stringify({
+        //   redirect: pathname + search,
+        // }),
       });
     }
   };

@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2020-09-04 09:25:11
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-26 22:51:40
+ * @LastEditTime: 2023-12-27 22:15:54
  * @Description:
  */
 
@@ -25,12 +25,12 @@ export default [
   {
     path: '/file',
     hideInMenu: true,
-    access: 'canFile',
+    // access: 'canFile',
     routes: [
       {
         path: '/file/:id',
         component: './FileManager',
-        access: 'canFileId',
+        // access: 'canFileId',
       },
     ],
   },

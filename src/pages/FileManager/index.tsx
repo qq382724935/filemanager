@@ -6,7 +6,7 @@ import {
   updateFile,
   uploadFile,
 } from '@/services/fileManager';
-import { API_PROXY, File_Base } from '@/utils';
+import { API_PROXY, File_Base, isImage, isVideo } from '@/utils';
 import {
   InboxOutlined,
   LeftOutlined,
@@ -20,6 +20,7 @@ import {
   Breadcrumb,
   Button,
   Divider,
+  Image,
   Modal,
   Popconfirm,
   Upload,
@@ -136,6 +137,9 @@ const FileManagerChild = () => {
     }
     return false;
   };
+
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
   return (
     <>
       <ProList<FileItemType>
@@ -233,6 +237,13 @@ const FileManagerChild = () => {
                 <span
                   onClick={async () => {
                     if (row.type === 2) {
+                      if (isVideo(row.extName)) {
+                        setVideoUrl(`${API_PROXY}/file/download/${row.id}`);
+                      } else if (isImage(row.extName)) {
+                        setPreviewUrl(`${API_PROXY}/file/download/${row.id}`);
+                      } else {
+                        message.info('此文件类型暂不支持预览,请下载查看内容!');
+                      }
                       return true;
                     }
                     setPId(row.id);
@@ -333,8 +344,11 @@ const FileManagerChild = () => {
           setConfirmLoading(true);
           const res = await uploadFile(fileList, pId);
           if (res.code === 0) {
+            setFileList([]);
             setOpenModal(false);
             await getFilesData(pId);
+          } else {
+            message.error(res.msg);
           }
           setConfirmLoading(false);
         }}
@@ -346,6 +360,31 @@ const FileManagerChild = () => {
           <p className="ant-upload-text">单击或拖动文件到此区域进行上传</p>
           <p className="ant-upload-hint">支持单次上传,严禁上传被禁止的文件.</p>
         </Dragger>
+      </Modal>
+      <Image
+        width={200}
+        style={{ display: 'none' }}
+        src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?x-oss-process=image/blur,r_50,s_50/quality,q_1/resize,m_mfit,h_200,w_200"
+        preview={{
+          visible: !!previewUrl,
+          src: previewUrl,
+          onVisibleChange: (value) => {
+            if (!value) {
+              setPreviewUrl('');
+            }
+          },
+        }}
+      />
+      <Modal
+        width={800}
+        onCancel={() => setVideoUrl('')}
+        title="视频预览"
+        open={!!videoUrl}
+      >
+        <video width="100%" height="100%" controls>
+          <source src={videoUrl} type="video/mp4" />
+          您的浏览器不支持视频标记。
+        </video>
       </Modal>
     </>
   );
