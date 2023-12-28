@@ -75,7 +75,7 @@ export default defineConfig({
    * @name layout 插件
    * @doc https://umijs.org/docs/max/layout-menu
    */
-  title: '文件管理系统',
+  title: defaultSettings.title,
   layout: {
     locale: true,
     ...defaultSettings,

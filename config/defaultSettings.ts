@@ -1,3 +1,11 @@
+/*
+ * @Author: 刘利军
+ * @Date: 2023-12-23 02:48:37
+ * @LastEditors: 刘利军
+ * @LastEditTime: 2023-12-28 08:04:26
+ * @Description: 
+ * @PageName: 
+ */
 import { ProLayoutProps } from '@ant-design/pro-components';
 
 /**
@@ -15,7 +23,7 @@ const Settings: ProLayoutProps & {
   fixedHeader: false,
   fixSiderbar: true,
   colorWeak: false,
-  title: '文件管理后台',
+  title: '文件管理系统',
   pwa: true,
   logo: 'https://ecrcphototest.upbuy.com.cn/emm/portal/packages/1703273444728.png',
   iconfontUrl: '',
