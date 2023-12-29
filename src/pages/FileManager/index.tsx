@@ -299,7 +299,10 @@ const FileManagerChild = () => {
                       } else if (isImage(row.extName)) {
                         setPreviewUrl(`${API_PROXY}/file/download/${row.id}`);
                       } else {
-                        message.info('此文件类型暂不支持预览,请下载查看内容!');
+                        window.open(
+                          `${API_PROXY}/file/download/${row.id}`,
+                          '_blank',
+                        );
                       }
                       return true;
                     }
