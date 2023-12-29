@@ -169,7 +169,6 @@ const FileManagerChild = () => {
       setFileChunkList(newFileChunkList);
     },
     beforeUpload: async (file, fileList) => {
-      console.log('fileList', fileList);
       setFileLoading(true);
       const chunk = await getFileChunk(file);
       setFileList((val) => [...val, file]);
@@ -402,60 +401,77 @@ const FileManagerChild = () => {
           },
         }}
       />
-      <Spin tip="正在解析文件内容,请耐心等待..." spinning={fileLoading}>
-        <Modal
-          open={openModal}
-          title="文件上传"
-          width={800}
-          confirmLoading={confirmLoading}
-          onCancel={() => uploadModalCancel()}
-          onOk={async () => {
-            setConfirmLoading(true);
-            const recursion = async (list: ChunkType[]) => {
-              let errorList = [];
-              for (let index = 0; index < list.length; index++) {
-                const e = list[index];
-                for (let eIndex = 0; eIndex < e.chunksList.length; eIndex++) {
-                  const chunkElement = e.chunksList[eIndex];
-                  const res = await chunkUploadFile(
-                    {
-                      md5: e.md5,
-                      name:
-                        fileList[index].name || fileList[index]?.fileName || '',
-                      ...chunkElement,
-                    },
-                    pId,
-                  );
-                  if (res.code !== 0) {
-                    errorList.push(e);
-                    continue;
-                  }
+
+      <Modal
+        open={openModal}
+        title="文件上传"
+        width={800}
+        confirmLoading={confirmLoading}
+        onCancel={() => {
+          if (fileLoading) {
+            message.info('正在解析文件,请耐心等待!');
+            return;
+          }
+          uploadModalCancel();
+        }}
+        onOk={async () => {
+          if (fileLoading) {
+            message.info('正在解析文件,请耐心等待!');
+            return;
+          }
+          setConfirmLoading(true);
+          const recursion = async (list: ChunkType[]) => {
+            let errorList = [];
+            for (let index = 0; index < list.length; index++) {
+              const e = list[index];
+              for (let eIndex = 0; eIndex < e.chunksList.length; eIndex++) {
+                const chunkElement = e.chunksList[eIndex];
+                const res = await chunkUploadFile(
+                  {
+                    md5: e.md5,
+                    name:
+                      fileList[index].name || fileList[index]?.fileName || '',
+                    ...chunkElement,
+                  },
+                  pId,
+                );
+                if (res.code !== 0) {
+                  errorList.push(e);
+                  continue;
                 }
               }
-              if (list.length > 0) {
-                await recursion(errorList);
-              }
-            };
-            await recursion(fileChunkList);
+            }
+            if (list.length > 0) {
+              await recursion(errorList);
+            }
+          };
+          await recursion(fileChunkList);
 
-            setFileList([]);
-            setFileChunkList([]);
-            setOpenModal(false);
-            await getFilesData(pId);
-            setConfirmLoading(false);
-          }}
+          setFileList([]);
+          setFileChunkList([]);
+          setOpenModal(false);
+          await getFilesData(pId);
+          setConfirmLoading(false);
+        }}
+      >
+        <Spin
+          tip="正在解析文件内容,请耐心等待..."
+          size="large"
+          spinning={fileLoading}
         >
-          <Dragger {...uploadProps}>
-            <p className="ant-upload-drag-icon">
-              <InboxOutlined />
-            </p>
-            <p className="ant-upload-text">单击或拖动文件到此区域进行上传</p>
-            <p className="ant-upload-hint">
-              支持单次上传,严禁上传被禁止的文件.
-            </p>
-          </Dragger>
-        </Modal>
-      </Spin>
+          <div>
+            <Dragger {...uploadProps}>
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="ant-upload-text">单击或拖动文件到此区域进行上传</p>
+              <p className="ant-upload-hint">
+                支持批量上传,严禁上传被禁止的文件.
+              </p>
+            </Dragger>
+          </div>
+        </Spin>
+      </Modal>
 
       <Image
         width={200}
