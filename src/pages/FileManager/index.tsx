@@ -105,8 +105,6 @@ const FileManagerChild = () => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const uploadProps: UploadProps = {
-    maxCount: 1,
-    multiple: false,
     onRemove: (file) => {
       const index = fileList.indexOf(file);
       const newFileList = fileList.slice();
@@ -294,7 +292,7 @@ const FileManagerChild = () => {
                     </>
                   )}
 
-                  {row.type === 2 && isRole('DOWNLOAD') && (
+                  {isRole('DOWNLOAD') && (
                     <>
                       <a
                         key="link"
@@ -308,7 +306,7 @@ const FileManagerChild = () => {
                     </>
                   )}
 
-                  {row.type === 2 && isRole('DELETE') && (
+                  {isRole('DELETE') && (
                     <>
                       <Popconfirm
                         placement="topLeft"
