@@ -24,6 +24,7 @@ import {
   Image,
   Modal,
   Popconfirm,
+  Spin,
   Upload,
   UploadFile,
   UploadProps,
@@ -114,7 +115,7 @@ const FileManagerChild = () => {
   const getFileChunk = (file: File) => {
     return new Promise<ChunkType>((resolve, reject) => {
       // 切片大小
-      const chunkSize = 1 * 1024 * 1024 * 1024;
+      const chunkSize = 100 * 1024 * 1024;
 
       // 获取切片数量
       const chunks = Math.ceil(file.size / chunkSize);
@@ -153,7 +154,7 @@ const FileManagerChild = () => {
       loadNext();
     });
   };
-
+  const [fileLoading, setFileLoading] = useState(false);
   const uploadProps: UploadProps = {
     multiple: true,
     onRemove: (file) => {
@@ -167,10 +168,15 @@ const FileManagerChild = () => {
       newFileChunkList.splice(index, 1);
       setFileChunkList(newFileChunkList);
     },
-    beforeUpload: async (file) => {
+    beforeUpload: async (file, fileList) => {
+      console.log('fileList', fileList);
+      setFileLoading(true);
       const chunk = await getFileChunk(file);
       setFileList((val) => [...val, file]);
       setFileChunkList((val) => [...val, chunk]);
+      if (fileList[fileList.length - 1].uid === file.uid) {
+        setFileLoading(false);
+      }
       return false;
     },
     fileList,
@@ -396,56 +402,61 @@ const FileManagerChild = () => {
           },
         }}
       />
-      <Modal
-        open={openModal}
-        title="文件上传"
-        width={800}
-        confirmLoading={confirmLoading}
-        onCancel={() => uploadModalCancel()}
-        onOk={async () => {
-          setConfirmLoading(true);
-          const recursion = async (list: ChunkType[]) => {
-            let errorList = [];
-            for (let index = 0; index < list.length; index++) {
-              const e = list[index];
-              for (let eIndex = 0; eIndex < e.chunksList.length; eIndex++) {
-                const chunkElement = e.chunksList[eIndex];
-                const res = await chunkUploadFile(
-                  {
-                    md5: e.md5,
-                    name:
-                      fileList[index].name || fileList[index]?.fileName || '',
-                    ...chunkElement,
-                  },
-                  pId,
-                );
-                if (res.code !== 0) {
-                  errorList.push(e);
-                  continue;
+      <Spin tip="正在解析文件内容,请耐心等待..." spinning={fileLoading}>
+        <Modal
+          open={openModal}
+          title="文件上传"
+          width={800}
+          confirmLoading={confirmLoading}
+          onCancel={() => uploadModalCancel()}
+          onOk={async () => {
+            setConfirmLoading(true);
+            const recursion = async (list: ChunkType[]) => {
+              let errorList = [];
+              for (let index = 0; index < list.length; index++) {
+                const e = list[index];
+                for (let eIndex = 0; eIndex < e.chunksList.length; eIndex++) {
+                  const chunkElement = e.chunksList[eIndex];
+                  const res = await chunkUploadFile(
+                    {
+                      md5: e.md5,
+                      name:
+                        fileList[index].name || fileList[index]?.fileName || '',
+                      ...chunkElement,
+                    },
+                    pId,
+                  );
+                  if (res.code !== 0) {
+                    errorList.push(e);
+                    continue;
+                  }
                 }
               }
-            }
-            if (list.length > 0) {
-              await recursion(errorList);
-            }
-          };
-          await recursion(fileChunkList);
+              if (list.length > 0) {
+                await recursion(errorList);
+              }
+            };
+            await recursion(fileChunkList);
 
-          setFileList([]);
-          setFileChunkList([]);
-          setOpenModal(false);
-          await getFilesData(pId);
-          setConfirmLoading(false);
-        }}
-      >
-        <Dragger {...uploadProps}>
-          <p className="ant-upload-drag-icon">
-            <InboxOutlined />
-          </p>
-          <p className="ant-upload-text">单击或拖动文件到此区域进行上传</p>
-          <p className="ant-upload-hint">支持单次上传,严禁上传被禁止的文件.</p>
-        </Dragger>
-      </Modal>
+            setFileList([]);
+            setFileChunkList([]);
+            setOpenModal(false);
+            await getFilesData(pId);
+            setConfirmLoading(false);
+          }}
+        >
+          <Dragger {...uploadProps}>
+            <p className="ant-upload-drag-icon">
+              <InboxOutlined />
+            </p>
+            <p className="ant-upload-text">单击或拖动文件到此区域进行上传</p>
+            <p className="ant-upload-hint">
+              支持单次上传,严禁上传被禁止的文件.
+            </p>
+          </Dragger>
+        </Modal>
+      </Spin>
+
       <Image
         width={200}
         style={{ display: 'none' }}
