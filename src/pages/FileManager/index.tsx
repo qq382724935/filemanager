@@ -404,8 +404,7 @@ const FileManagerChild = () => {
         onCancel={() => uploadModalCancel()}
         onOk={async () => {
           setConfirmLoading(true);
-
-          const digui = async (list: ChunkType[]) => {
+          const recursion = async (list: ChunkType[]) => {
             let errorList = [];
             for (let index = 0; index < list.length; index++) {
               const e = list[index];
@@ -427,10 +426,10 @@ const FileManagerChild = () => {
               }
             }
             if (list.length > 0) {
-              digui(errorList);
+              await recursion(errorList);
             }
           };
-          await digui(fileChunkList);
+          await recursion(fileChunkList);
 
           setFileList([]);
           setFileChunkList([]);
