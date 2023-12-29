@@ -374,7 +374,7 @@ const FileManagerChild = () => {
                       <Popconfirm
                         placement="topLeft"
                         key="delete"
-                        title="确认删除此文件夹吗,删除后文件夹所有内容不可回复?"
+                        title="确认删除此吗,删除后内容不可恢复?"
                         icon={
                           <QuestionCircleOutlined style={{ color: 'red' }} />
                         }
