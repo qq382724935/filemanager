@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2021-01-05 12:02:13
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-27 22:40:36
+ * @LastEditTime: 2023-12-29 16:35:07
  * @Description:
  * @PageName:
  */
@@ -49,3 +49,14 @@ const Video = [
   'flv',
 ];
 export const isVideo = (extName: string) => isFileType(Video, extName);
+
+// 字节转换
+export function bytesToSize(bytes: number) {
+  if (bytes === 0) {
+    return '0 B';
+  }
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}

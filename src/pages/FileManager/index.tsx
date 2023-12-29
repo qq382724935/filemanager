@@ -1,10 +1,11 @@
 import {
+  ChunkType,
   FileItemType,
   addFile,
+  chunkUploadFile,
   delFile,
   getFiles,
   updateFile,
-  uploadFile,
 } from '@/services/fileManager';
 import { API_PROXY, File_Base, isImage, isVideo } from '@/utils';
 import {
@@ -33,8 +34,11 @@ import { useEffect, useRef, useState } from 'react';
 
 const { Dragger } = Upload;
 
+import SparkMD5 from 'spark-md5';
+
 let addKey = '';
 let menuRoleList: FileItemType[] = [];
+
 export type BreadcrumbListItm = ItemType & { buttonList: Array<string> | null };
 const FileManagerChild = () => {
   const [loading, setLoading] = useState(false);
@@ -103,16 +107,70 @@ const FileManagerChild = () => {
   }, [match?.params.id]);
 
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [fileChunkList, setFileChunkList] = useState<ChunkType[]>([]);
   const [openModal, setOpenModal] = useState(false);
+
+  // 获取文件切片
+  const getFileChunk = (file: File) => {
+    return new Promise<ChunkType>((resolve, reject) => {
+      // 切片大小
+      const chunkSize = 1 * 1024 * 1024 * 1024;
+
+      // 获取切片数量
+      const chunks = Math.ceil(file.size / chunkSize);
+      const chunksList: { file: Blob; index: number }[] = [];
+      const spark = new SparkMD5.ArrayBuffer();
+      const fileReader = new FileReader();
+      let currentChunk = 0;
+
+      const loadNext = () => {
+        const start = currentChunk * chunkSize,
+          end = start + chunkSize >= file.size ? file.size : start + chunkSize;
+        chunksList.push({
+          file: file.slice(start, end),
+          index: currentChunk,
+        });
+        fileReader.readAsArrayBuffer(file.slice(start, end));
+      };
+
+      fileReader.onload = (event) => {
+        spark.append(event.target?.result as any);
+        currentChunk++;
+        if (currentChunk < chunks) {
+          loadNext();
+        } else {
+          resolve({
+            md5: spark.end(),
+            chunksList,
+          });
+        }
+      };
+      fileReader.onerror = function () {
+        console.warn('oops, something went wrong.');
+        reject({ md5: '', chunksList: [] });
+      };
+
+      loadNext();
+    });
+  };
+
   const uploadProps: UploadProps = {
+    multiple: true,
     onRemove: (file) => {
       const index = fileList.indexOf(file);
       const newFileList = fileList.slice();
       newFileList.splice(index, 1);
-      setFileList([]);
+      setFileList(newFileList);
+
+      // 删除对应的chunk数据
+      const newFileChunkList = fileChunkList.slice();
+      newFileChunkList.splice(index, 1);
+      setFileChunkList(newFileChunkList);
     },
-    beforeUpload: (file) => {
-      setFileList([file]);
+    beforeUpload: async (file) => {
+      const chunk = await getFileChunk(file);
+      setFileList((val) => [...val, file]);
+      setFileChunkList((val) => [...val, chunk]);
       return false;
     },
     fileList,
@@ -121,6 +179,7 @@ const FileManagerChild = () => {
   const uploadModalCancel = () => {
     setOpenModal(false);
     setFileList([]);
+    setFileChunkList([]);
   };
   const [confirmLoading, setConfirmLoading] = useState(false);
 
@@ -298,6 +357,7 @@ const FileManagerChild = () => {
                         key="link"
                         target="_blank"
                         rel="noreferrer"
+                        download={true}
                         href={`${API_PROXY}/file/download/${row.id}`}
                       >
                         下载
@@ -336,18 +396,43 @@ const FileManagerChild = () => {
       <Modal
         open={openModal}
         title="文件上传"
+        width={800}
         confirmLoading={confirmLoading}
         onCancel={() => uploadModalCancel()}
         onOk={async () => {
           setConfirmLoading(true);
-          const res = await uploadFile(fileList, pId);
-          if (res.code === 0) {
-            setFileList([]);
-            setOpenModal(false);
-            await getFilesData(pId);
-          } else {
-            message.error(res.msg);
-          }
+
+          const digui = async (list: ChunkType[]) => {
+            let errorList = [];
+            for (let index = 0; index < list.length; index++) {
+              const e = list[index];
+              for (let eIndex = 0; eIndex < e.chunksList.length; eIndex++) {
+                const chunkElement = e.chunksList[eIndex];
+                const res = await chunkUploadFile(
+                  {
+                    md5: e.md5,
+                    name:
+                      fileList[index].name || fileList[index]?.fileName || '',
+                    ...chunkElement,
+                  },
+                  pId,
+                );
+                if (res.code !== 0) {
+                  errorList.push(e);
+                  continue;
+                }
+              }
+            }
+            if (list.length > 0) {
+              digui(errorList);
+            }
+          };
+          await digui(fileChunkList);
+
+          setFileList([]);
+          setFileChunkList([]);
+          setOpenModal(false);
+          await getFilesData(pId);
           setConfirmLoading(false);
         }}
       >

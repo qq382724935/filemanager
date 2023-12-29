@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-24 10:49:05
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-26 14:08:23
+ * @LastEditTime: 2023-12-29 19:51:51
  * @Description:
  * @PageName:
  */
@@ -26,6 +26,16 @@ export interface FileItemType {
   icon: string;
   buttonList: Array<string> | null;
 }
+
+export type ChunkListItemType = {
+  index: number;
+  file: Blob;
+};
+
+export type ChunkType = {
+  md5: string;
+  chunksList: ChunkListItemType[];
+};
 
 export async function getFiles(id: string) {
   return request<API.Result & { data: FileItemType[] }>(
@@ -55,7 +65,7 @@ export async function updateFile(data: { id: string; fileName: string }) {
   });
 }
 
-// 修改
+// 上传
 export async function uploadFile(fileList: UploadFile[], id: string) {
   const formData = new FormData();
   fileList.forEach((file) => {
@@ -63,6 +73,26 @@ export async function uploadFile(fileList: UploadFile[], id: string) {
   });
   formData.append('id', id);
   formData.append('icon', Other_base);
+
+  return request<API.Result>(`${API_PROXY}/file/upload/file`, {
+    method: 'POST',
+    data: formData,
+  });
+}
+
+// 分片上传
+export async function chunkUploadFile(
+  chunk: ChunkListItemType & { md5: string; name: string },
+  id: string,
+) {
+  const formData = new FormData();
+  formData.append('file', chunk.file);
+  formData.append('index', chunk.index.toString());
+  formData.append('md5', chunk.md5);
+  formData.append('fileName', chunk.name);
+  formData.append('id', id);
+  formData.append('icon', Other_base);
+  formData.append('chunk', true as any);
 
   return request<API.Result>(`${API_PROXY}/file/upload/file`, {
     method: 'POST',

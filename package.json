@@ -2,11 +2,11 @@
   "private": true,
   "author": "qq382724935 <382724935@qq.com>",
   "scripts": {
-    "dev": "max dev",
     "build": "max build",
+    "dev": "max dev",
     "format": "prettier --cache --write .",
-    "prepare": "husky install",
     "postinstall": "max setup",
+    "prepare": "husky install",
     "setup": "max setup",
     "start": "npm run dev"
   },
@@ -16,11 +16,13 @@
     "@ant-design/pro-layout": "^7.17.16",
     "@umijs/max": "^4.0.90",
     "antd": "^5.4.0",
-    "antd-style": "^3.6.1"
+    "antd-style": "^3.6.1",
+    "spark-md5": "^3.0.2"
   },
   "devDependencies": {
     "@types/react": "^18.0.33",
     "@types/react-dom": "^18.0.11",
+    "@types/spark-md5": "^3.0.4",
     "husky": "^8.0.3",
     "lint-staged": "^13.2.0",
     "prettier": "^2.8.7",
