@@ -444,11 +444,10 @@ const FileManagerChild = () => {
                 }
               }
             }
-            if (list.length > 0) {
-              await recursion(errorList);
-            }
+            return errorList;
           };
-          await recursion(fileChunkList);
+          const res = await recursion(fileChunkList);
+          console.log('res', res);
 
           setFileList([]);
           setFileChunkList([]);
