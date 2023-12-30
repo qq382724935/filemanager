@@ -115,7 +115,7 @@ const FileManagerChild = () => {
   const getFileChunk = (file: File) => {
     return new Promise<ChunkType>((resolve, reject) => {
       // 切片大小
-      const chunkSize = 100 * 1024 * 1024;
+      const chunkSize = 1 * 1024 * 1024;
 
       // 获取切片数量
       const chunks = Math.ceil(file.size / chunkSize);
@@ -142,13 +142,14 @@ const FileManagerChild = () => {
         } else {
           resolve({
             md5: spark.end(),
+            total: chunks,
             chunksList,
           });
         }
       };
       fileReader.onerror = function () {
         console.warn('oops, something went wrong.');
-        reject({ md5: '', chunksList: [] });
+        reject({ md5: '', total: 0, chunksList: [] });
       };
 
       loadNext();
@@ -171,7 +172,7 @@ const FileManagerChild = () => {
     beforeUpload: async (file, fileList) => {
       setFileLoading(true);
       const chunk = await getFileChunk(file);
-      
+
       setFileList((val) => [...val, file]);
       setFileChunkList((val) => [...val, chunk]);
       if (fileList[fileList.length - 1].uid === file.uid) {
@@ -430,6 +431,7 @@ const FileManagerChild = () => {
                 const res = await chunkUploadFile(
                   {
                     md5: e.md5,
+                    total: e.total,
                     name:
                       fileList[index].name || fileList[index]?.fileName || '',
                     ...chunkElement,
