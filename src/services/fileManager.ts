@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-24 10:49:05
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-29 19:51:51
+ * @LastEditTime: 2023-12-30 16:02:55
  * @Description:
  * @PageName:
  */
@@ -94,7 +94,7 @@ export async function chunkUploadFile(
   formData.append('icon', Other_base);
   formData.append('chunk', true as any);
 
-  return request<API.Result>(`${API_PROXY}/file/upload/file`, {
+  return request<API.Result>(`${API_PROXY}/file/upload/chunk`, {
     method: 'POST',
     data: formData,
   });

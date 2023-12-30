@@ -171,6 +171,7 @@ const FileManagerChild = () => {
     beforeUpload: async (file, fileList) => {
       setFileLoading(true);
       const chunk = await getFileChunk(file);
+      
       setFileList((val) => [...val, file]);
       setFileChunkList((val) => [...val, chunk]);
       if (fileList[fileList.length - 1].uid === file.uid) {
