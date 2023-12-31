@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-24 10:49:05
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-30 16:26:24
+ * @LastEditTime: 2023-12-31 13:08:02
  * @Description:
  * @PageName:
  */
@@ -32,9 +32,13 @@ export type ChunkListItemType = {
   file: Blob;
 };
 
-export type ChunkType = {
+export type UploadFileType = {
   md5: string;
   total: number;
+  name: string;
+};
+
+export type ChunkType = UploadFileType & {
   chunksList: ChunkListItemType[];
 };
 
@@ -83,18 +87,18 @@ export async function uploadFile(fileList: UploadFile[], id: string) {
 
 // 分片上传
 export async function chunkUploadFile(
-  chunk: ChunkListItemType & { md5: string; total: number; name: string },
+  chunk: ChunkListItemType & UploadFileType,
   id: string,
 ) {
   const formData = new FormData();
   formData.append('file', chunk.file);
-  formData.append('index', chunk.index.toString());
+  formData.append('index', chunk.index as any);
+  formData.append('chunk', false as any);
+  formData.append('totalChunkNumber', chunk.total as any);
   formData.append('md5', chunk.md5);
   formData.append('fileName', chunk.name);
   formData.append('id', id);
   formData.append('icon', Other_base);
-  formData.append('chunk', true as any);
-  formData.append('totalChunkNumber', chunk.total.toString());
 
   return request<API.Result>(`${API_PROXY}/file/upload/chunk`, {
     method: 'POST',

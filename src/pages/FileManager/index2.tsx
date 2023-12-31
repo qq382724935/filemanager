@@ -1,4 +1,5 @@
 import {
+  ChunkType,
   FileItemType,
   addFile,
   chunkUploadFile,
@@ -23,16 +24,18 @@ import {
   Image,
   Modal,
   Popconfirm,
+  Spin,
   Upload,
   UploadFile,
   UploadProps,
   message,
 } from 'antd';
 import { ItemType } from 'antd/es/breadcrumb/Breadcrumb';
-import { RcFile } from 'antd/es/upload';
 import { useEffect, useRef, useState } from 'react';
 
 const { Dragger } = Upload;
+
+import SparkMD5 from 'spark-md5';
 
 let addKey = '';
 let menuRoleList: FileItemType[] = [];
@@ -105,8 +108,57 @@ const FileManagerChild = () => {
   }, [match?.params.id]);
 
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [fileChunkList, setFileChunkList] = useState<ChunkType[]>([]);
   const [openModal, setOpenModal] = useState(false);
 
+  // 获取文件切片
+  const getFileChunk = async (file: File) => {
+    return new Promise<ChunkType>((resolve, reject) => {
+      // 切片大小
+      const chunkSize = 1 * 1024 * 1024;
+
+      // 获取切片数量
+      const chunks = Math.ceil(file.size / chunkSize);
+      const chunksList: { file: Blob; index: number }[] = [];
+      const spark = new SparkMD5.ArrayBuffer();
+
+      const fileReader = new FileReader();
+      let currentChunk = 0;
+
+      const loadNext = () => {
+        const start = currentChunk * chunkSize,
+          end = Math.min(start + chunkSize, file.size);
+        const fileBlob = file.slice(start, end);
+        chunksList.push({
+          file: fileBlob,
+          index: currentChunk,
+        });
+        fileReader.readAsArrayBuffer(fileBlob);
+      };
+
+      fileReader.onload = (event) => {
+        spark.append(event.target?.result as any);
+        currentChunk++;
+        if (currentChunk < chunks) {
+          loadNext();
+        } else {
+          resolve({
+            md5: spark.end(),
+            total: chunks,
+            name: file?.name,
+            chunksList,
+          });
+        }
+      };
+      fileReader.onerror = function () {
+        console.warn('oops, something went wrong.');
+        reject({ md5: '', total: 0, name: '', chunksList: [] });
+      };
+
+      loadNext();
+    });
+  };
+  const [fileLoading, setFileLoading] = useState(false);
   const uploadProps: UploadProps = {
     multiple: true,
     onRemove: (file) => {
@@ -114,9 +166,21 @@ const FileManagerChild = () => {
       const newFileList = fileList.slice();
       newFileList.splice(index, 1);
       setFileList(newFileList);
+
+      // 删除对应的chunk数据
+      const newFileChunkList = fileChunkList.slice();
+      newFileChunkList.splice(index, 1);
+      setFileChunkList(newFileChunkList);
     },
-    beforeUpload: async (file) => {
+    beforeUpload: async (file, fileList) => {
+      setFileLoading(true);
+      const chunk = await getFileChunk(file);
+
       setFileList((val) => [...val, file]);
+      setFileChunkList((val) => [...val, chunk]);
+      if (fileList[fileList.length - 1].uid === file.uid) {
+        setFileLoading(false);
+      }
       return false;
     },
     fileList,
@@ -125,6 +189,7 @@ const FileManagerChild = () => {
   const uploadModalCancel = () => {
     setOpenModal(false);
     setFileList([]);
+    setFileChunkList([]);
   };
   const [confirmLoading, setConfirmLoading] = useState(false);
 
@@ -142,6 +207,7 @@ const FileManagerChild = () => {
 
   const [previewUrl, setPreviewUrl] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
+  const [errorList, setErrorList] = useState<ChunkType[]>([]);
   return (
     <>
       <ProList<FileItemType>
@@ -348,40 +414,64 @@ const FileManagerChild = () => {
         width={800}
         confirmLoading={confirmLoading}
         onCancel={() => {
+          if (fileLoading) {
+            message.info('正在解析文件,请耐心等待!');
+            return;
+          }
           uploadModalCancel();
         }}
         onOk={async () => {
-          setConfirmLoading(true);
-          for (let index = 0; index < fileList.length; index++) {
-            const element = fileList[index] as RcFile;
-            await chunkUploadFile(
-              {
-                md5: 'md5',
-                total: 0,
-                index: 0,
-                file: element,
-                name: element.name,
-              },
-              pId,
-            );
+          if (fileLoading) {
+            message.info('正在解析文件,请耐心等待!');
+            return;
           }
+          setConfirmLoading(true);
+          let errorList: any[] = [];
+          for (let index = 0; index < fileChunkList.length; index++) {
+            const e = fileChunkList[index];
+            for (let eIndex = 0; eIndex < e.chunksList.length; eIndex++) {
+              const chunkElement = e.chunksList[eIndex];
+              const res = await chunkUploadFile(
+                {
+                  md5: e.md5,
+                  total: e.total,
+                  name: e.name,
+                  ...chunkElement,
+                },
+                pId,
+              );
+              console.log('res', res);
+              if (res.code !== 0) {
+                errorList.push(e);
+              }
+            }
+          }
+          setErrorList(errorList);
+          console.log('errorList', errorList);
           setFileList([]);
+          setFileChunkList([]);
           setOpenModal(false);
           await getFilesData(pId);
           setConfirmLoading(false);
         }}
       >
-        <div>
-          <Dragger {...uploadProps}>
-            <p className="ant-upload-drag-icon">
-              <InboxOutlined />
-            </p>
-            <p className="ant-upload-text">单击或拖动文件到此区域进行上传</p>
-            <p className="ant-upload-hint">
-              支持批量上传,严禁上传被禁止的文件.
-            </p>
-          </Dragger>
-        </div>
+        <Spin
+          tip="正在解析文件内容,请耐心等待..."
+          size="large"
+          spinning={fileLoading}
+        >
+          <div>
+            <Dragger {...uploadProps}>
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="ant-upload-text">单击或拖动文件到此区域进行上传</p>
+              <p className="ant-upload-hint">
+                支持批量上传,严禁上传被禁止的文件.
+              </p>
+            </Dragger>
+          </div>
+        </Spin>
       </Modal>
 
       <Image
@@ -409,6 +499,18 @@ const FileManagerChild = () => {
           <source src={videoUrl} type="video/mp4" />
           您的浏览器不支持视频标记。
         </video>
+      </Modal>
+      <Modal
+        width={800}
+        footer={false}
+        onCancel={() => setVideoUrl('')}
+        title="上传失败文件"
+        open={errorList.length > 0}
+      >
+        <p>是否重新上传以下失败文件:</p>
+        {errorList.map((item, index) => {
+          return <p key={index}>{item.name}</p>;
+        })}
       </Modal>
     </>
   );
