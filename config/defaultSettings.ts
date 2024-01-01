@@ -2,7 +2,7 @@
  * @Author: 刘利军
  * @Date: 2023-12-23 02:48:37
  * @LastEditors: 刘利军
- * @LastEditTime: 2023-12-28 13:56:35
+ * @LastEditTime: 2023-12-31 14:55:58
  * @Description: 
  * @PageName: 
  */
@@ -23,7 +23,7 @@ const Settings: ProLayoutProps & {
   fixedHeader: false,
   fixSiderbar: true,
   colorWeak: false,
-  title: '文件管理系统',
+  title: '十一初臻彩共享平台',
   pwa: true,
   logo: 'https://ecrcphototest.upbuy.com.cn/emm/portal/packages/1703273444728.png',
   iconfontUrl: '',

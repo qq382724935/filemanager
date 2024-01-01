@@ -27,6 +27,7 @@ import {
   UploadFile,
   UploadProps,
   message,
+  notification,
 } from 'antd';
 import { ItemType } from 'antd/es/breadcrumb/Breadcrumb';
 import { RcFile } from 'antd/es/upload';
@@ -105,6 +106,7 @@ const FileManagerChild = () => {
   }, [match?.params.id]);
 
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [errorFileList, setErrorFileList] = useState<UploadFile[]>([]);
   const [openModal, setOpenModal] = useState(false);
 
   const uploadProps: UploadProps = {
@@ -142,8 +144,11 @@ const FileManagerChild = () => {
 
   const [previewUrl, setPreviewUrl] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
+
+  const [api, contextHolder] = notification.useNotification();
   return (
     <>
+      {contextHolder}
       <ProList<FileItemType>
         loading={loading}
         dataSource={fileData}
@@ -352,9 +357,10 @@ const FileManagerChild = () => {
         }}
         onOk={async () => {
           setConfirmLoading(true);
+          let errorList = [];
           for (let index = 0; index < fileList.length; index++) {
             const element = fileList[index] as RcFile;
-            await chunkUploadFile(
+            const res = await chunkUploadFile(
               {
                 md5: 'md5',
                 total: 0,
@@ -364,8 +370,26 @@ const FileManagerChild = () => {
               },
               pId,
             );
+            if (res.code !== 0) {
+              errorList.push(element);
+            }
           }
+          if (errorList.length > 0) {
+            api.error({
+              message: '上传失败提示',
+              description: (
+                <div>
+                  <p>以下文件上传失败,请重新上传</p>
+                  {errorList.map((item, index) => {
+                    return <p key={index}>{item.name}</p>;
+                  })}
+                </div>
+              ),
+            });
+          }
+
           setFileList([]);
+          errorList = [];
           setOpenModal(false);
           await getFilesData(pId);
           setConfirmLoading(false);
